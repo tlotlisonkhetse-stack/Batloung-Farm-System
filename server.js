@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -99,7 +98,12 @@ app.use((req, res) => {
     });
 });
 
-// START SERVER
-app.listen(PORT, () => {
-    console.log(`Batloung Farm server running on port ${PORT}`);
-});
+// START SERVER (only when running on your own computer, not on Vercel)
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Batloung Farm server running on port ${PORT}`);
+    });
+}
+
+// EXPORT THE APP (Vercel needs this)
+module.exports = app;
