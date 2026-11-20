@@ -13,7 +13,7 @@ const addVendor = async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO Vendors (Vendor_Name, Phone, Address, Email)
+            INSERT INTO vendors (Vendor_Name, Phone, Address, Email)
             VALUES (?, ?, ?, ?)
         `;
 
@@ -42,7 +42,7 @@ const addVendor = async (req, res) => {
 const getAllVendors = async (req, res) => {
     try {
         const [vendors] = await db.execute(
-            "SELECT * FROM Vendors ORDER BY Vendor_ID DESC"
+            "SELECT * FROM vendors ORDER BY Vendor_ID DESC"
         );
 
         res.status(200).json({
@@ -65,7 +65,7 @@ const getVendorById = async (req, res) => {
         const { id } = req.params;
 
         const [vendors] = await db.execute(
-            "SELECT * FROM Vendors WHERE Vendor_ID = ?",
+            "SELECT * FROM vendors WHERE Vendor_ID = ?",
             [id]
         );
 
@@ -99,7 +99,7 @@ const updateVendor = async (req, res) => {
         }
 
         const sql = `
-            UPDATE Vendors
+            UPDATE vendors
             SET Vendor_Name = ?, Phone = ?, Address = ?, Email = ?
             WHERE Vendor_ID = ?
         `;
@@ -137,7 +137,7 @@ const deleteVendor = async (req, res) => {
         const { id } = req.params;
 
         const [result] = await db.execute(
-            "DELETE FROM Vendors WHERE Vendor_ID = ?",
+            "DELETE FROM vendors WHERE Vendor_ID = ?",
             [id]
         );
 

@@ -9,8 +9,8 @@ const getPackagingData = async (req, res) => {
                 f.Fruit_ID,
                 f.Fruit_Name,
                 COALESCE(rs.Quantity_Available, 0) AS Raw_Stock
-            FROM Fruits f
-            LEFT JOIN Raw_Stock rs
+            FROM fruits f
+            LEFT JOIN raw_stock rs
                 ON f.Fruit_ID = rs.Fruit_ID
             ORDER BY f.Fruit_Name
         `);
@@ -21,8 +21,8 @@ const getPackagingData = async (req, res) => {
                 f.Fruit_Name,
                 pc.Package_Size,
                 pc.Fruits_Per_Package
-            FROM Packaging_Capacities pc
-            JOIN Fruits f
+            FROM packaging_capacities pc
+            JOIN fruits f
                 ON pc.Fruit_ID = f.Fruit_ID
             WHERE pc.Is_Active = TRUE
             ORDER BY f.Fruit_Name,
@@ -77,7 +77,7 @@ const createPackaging = async (req, res) => {
         // Get packaging capacity
         const [capacityRows] = await connection.execute(
             `SELECT Fruits_Per_Package
-             FROM Packaging_Capacities
+             FROM packaging_capacities
              WHERE Fruit_ID = ?
              AND Package_Size = ?
              AND Is_Active = TRUE`,
@@ -97,7 +97,7 @@ const createPackaging = async (req, res) => {
         // Lock and check raw stock
         const [stockRows] = await connection.execute(
             `SELECT Quantity_Available
-             FROM Raw_Stock
+             FROM raw_stock
              WHERE Fruit_ID = ?
              FOR UPDATE`,
             [fruitId]
@@ -119,7 +119,7 @@ const createPackaging = async (req, res) => {
 
         // Deduct raw fruit
         await connection.execute(
-            `UPDATE Raw_Stock
+            `UPDATE raw_stock
              SET Quantity_Available = Quantity_Available - ?
              WHERE Fruit_ID = ?`,
             [fruitsUsed, fruitId]
@@ -127,7 +127,7 @@ const createPackaging = async (req, res) => {
 
         // Add finished packages to packaged stock
         await connection.execute(
-            `INSERT INTO Stock
+            `INSERT INTO stock
              (Fruit_ID, Package_Size, Quantity_Available)
              VALUES (?, ?, ?)
              ON DUPLICATE KEY UPDATE
@@ -139,7 +139,7 @@ const createPackaging = async (req, res) => {
 
         // Record packaging activity
         await connection.execute(
-            `INSERT INTO Packaging_Records
+            `INSERT INTO packaging_records
              (Fruit_ID, Package_Size, Packages_Produced, Fruits_Used)
              VALUES (?, ?, ?, ?)`,
             [
@@ -188,8 +188,8 @@ const getPackagingHistory = async (req, res) => {
                 pr.Packages_Produced,
                 pr.Fruits_Used,
                 pr.Packaging_Date
-            FROM Packaging_Records pr
-            JOIN Fruits f
+            FROM packaging_records pr
+            JOIN fruits f
                 ON pr.Fruit_ID = f.Fruit_ID
             ORDER BY pr.Packaging_ID DESC
         `);

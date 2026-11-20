@@ -13,7 +13,7 @@ const addFruit = async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO Fruits (Fruit_Name, Description)
+            INSERT INTO fruits (Fruit_Name, Description)
             VALUES (?, ?)
         `;
 
@@ -40,7 +40,7 @@ const addFruit = async (req, res) => {
 const getAllFruits = async (req, res) => {
     try {
         const [fruits] = await db.execute(
-            "SELECT * FROM Fruits ORDER BY Fruit_ID DESC"
+            "SELECT * FROM fruits ORDER BY Fruit_ID DESC"
         );
 
         res.status(200).json({
@@ -63,7 +63,7 @@ const getFruitById = async (req, res) => {
         const { id } = req.params;
 
         const [fruits] = await db.execute(
-            "SELECT * FROM Fruits WHERE Fruit_ID = ?",
+            "SELECT * FROM fruits WHERE Fruit_ID = ?",
             [id]
         );
 
@@ -105,7 +105,7 @@ const updateFruit = async (req, res) => {
         }
 
         const sql = `
-            UPDATE Fruits
+            UPDATE fruits
             SET Fruit_Name = ?, Description = ?, Status = ?
             WHERE Fruit_ID = ?
         `;
@@ -142,7 +142,7 @@ const deleteFruit = async (req, res) => {
         const { id } = req.params;
 
         const [result] = await db.execute(
-            "DELETE FROM Fruits WHERE Fruit_ID = ?",
+            "DELETE FROM fruits WHERE Fruit_ID = ?",
             [id]
         );
 

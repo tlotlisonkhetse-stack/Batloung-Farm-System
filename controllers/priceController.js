@@ -26,7 +26,7 @@ const addPrice = async (req, res) => {
 
         // Check whether the fruit exists
         const [fruits] = await db.execute(
-            "SELECT Fruit_ID FROM Fruits WHERE Fruit_ID = ?",
+            "SELECT Fruit_ID FROM fruits WHERE Fruit_ID = ?",
             [Number(Fruit_ID)]
         );
 
@@ -37,7 +37,7 @@ const addPrice = async (req, res) => {
         }
 
         const [result] = await db.execute(
-            `INSERT INTO Packaging_Prices
+            `INSERT INTO packaging_prices
             (Fruit_ID, Package_Size, Selling_Price)
             VALUES (?, ?, ?)`,
             [Number(Fruit_ID), Package_Size, Number(Selling_Price)]
@@ -71,16 +71,16 @@ const getAllPrices = async (req, res) => {
     try {
         const [prices] = await db.execute(`
             SELECT
-                Packaging_Prices.Price_ID,
-                Fruits.Fruit_Name,
-                Packaging_Prices.Fruit_ID,
-                Packaging_Prices.Package_Size,
-                Packaging_Prices.Selling_Price,
-                Packaging_Prices.Is_Active
-            FROM Packaging_Prices
-            JOIN Fruits
-            ON Packaging_Prices.Fruit_ID = Fruits.Fruit_ID
-            ORDER BY Fruits.Fruit_Name, Packaging_Prices.Package_Size
+                packaging_prices.Price_ID,
+                fruits.Fruit_Name,
+                packaging_prices.Fruit_ID,
+                packaging_prices.Package_Size,
+                packaging_prices.Selling_Price,
+                packaging_prices.Is_Active
+            FROM packaging_prices
+            JOIN fruits
+            ON packaging_prices.Fruit_ID = fruits.Fruit_ID
+            ORDER BY fruits.Fruit_Name, packaging_prices.Package_Size
         `);
 
         res.status(200).json({
@@ -106,12 +106,12 @@ const getPriceById = async (req, res) => {
 
         const [prices] = await db.execute(`
             SELECT
-                Packaging_Prices.*,
-                Fruits.Fruit_Name
-            FROM Packaging_Prices
-            JOIN Fruits
-            ON Packaging_Prices.Fruit_ID = Fruits.Fruit_ID
-            WHERE Packaging_Prices.Price_ID = ?
+                packaging_prices.*,
+                fruits.Fruit_Name
+            FROM packaging_prices
+            JOIN fruits
+            ON packaging_prices.Fruit_ID = fruits.Fruit_ID
+            WHERE packaging_prices.Price_ID = ?
         `, [id]);
 
         if (prices.length === 0) {
@@ -154,7 +154,7 @@ const updatePrice = async (req, res) => {
         }
 
         const [result] = await db.execute(
-            `UPDATE Packaging_Prices
+            `UPDATE packaging_prices
              SET Selling_Price = ?
              WHERE Price_ID = ?`,
             [Number(Selling_Price), id]
@@ -198,7 +198,7 @@ const updatePriceStatus = async (req, res) => {
         }
 
         const [result] = await db.execute(
-            `UPDATE Packaging_Prices
+            `UPDATE packaging_prices
              SET Is_Active = ?
              WHERE Price_ID = ?`,
             [Is_Active ? 1 : 0, id]

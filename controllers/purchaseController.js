@@ -72,7 +72,7 @@ const addPurchase = async (req, res) => {
 
         // Check that the supplier exists
         const [suppliers] = await connection.execute(
-            "SELECT Supplier_ID FROM Suppliers WHERE Supplier_ID = ?",
+            "SELECT Supplier_ID FROM suppliers WHERE Supplier_ID = ?",
             [Number(Supplier_ID)]
         );
 
@@ -87,7 +87,7 @@ const addPurchase = async (req, res) => {
         for (const item of combinedItems.values()) {
             const [capacityRows] = await connection.execute(
                 `SELECT Fruits_Per_Crate
-                 FROM Fruit_Crate_Capacity
+                 FROM fruit_crate_capacity
                  WHERE Fruit_ID = ?`,
                 [item.Fruit_ID]
             );
@@ -120,7 +120,7 @@ const addPurchase = async (req, res) => {
 
         // Create the purchase record
         const [purchaseResult] = await connection.execute(
-            `INSERT INTO Purchases
+            `INSERT INTO purchases
              (Supplier_ID, Purchase_Date, Total_Amount,
               Payment_Method, Payment_Status)
              VALUES (?, ?, ?, ?, ?)`,
@@ -138,7 +138,7 @@ const addPurchase = async (req, res) => {
         // Save each fruit purchase and update raw stock
         for (const item of preparedItems) {
             await connection.execute(
-                `INSERT INTO Purchase_Raw_Details
+                `INSERT INTO purchase_raw_details
                  (Purchase_ID, Fruit_ID, Crate_Quantity,
                   Fruits_Per_Crate, Unit_Cost_Per_Crate, Subtotal)
                  VALUES (?, ?, ?, ?, ?, ?)`,
@@ -153,7 +153,7 @@ const addPurchase = async (req, res) => {
             );
 
             await connection.execute(
-                `INSERT INTO Raw_Stock
+                `INSERT INTO raw_stock
                  (Fruit_ID, Quantity_Available)
                  VALUES (?, ?)
                  ON DUPLICATE KEY UPDATE
@@ -196,8 +196,8 @@ const getAllPurchases = async (req, res) => {
             `SELECT
                 p.*,
                 s.Supplier_Name
-             FROM Purchases p
-             LEFT JOIN Suppliers s
+             FROM purchases p
+             LEFT JOIN suppliers s
                 ON p.Supplier_ID = s.Supplier_ID
              ORDER BY p.Purchase_ID DESC`
         );
@@ -229,8 +229,8 @@ const getPurchaseById = async (req, res) => {
             `SELECT
                 p.*,
                 s.Supplier_Name
-             FROM Purchases p
-             LEFT JOIN Suppliers s
+             FROM purchases p
+             LEFT JOIN suppliers s
                 ON p.Supplier_ID = s.Supplier_ID
              WHERE p.Purchase_ID = ?`,
             [purchaseId]
@@ -246,8 +246,8 @@ const getPurchaseById = async (req, res) => {
             `SELECT
                 prd.*,
                 f.Fruit_Name
-             FROM Purchase_Raw_Details prd
-             LEFT JOIN Fruits f
+             FROM purchase_raw_details prd
+             LEFT JOIN fruits f
                 ON prd.Fruit_ID = f.Fruit_ID
              WHERE prd.Purchase_ID = ?`,
             [purchaseId]
@@ -257,8 +257,8 @@ const getPurchaseById = async (req, res) => {
             `SELECT
                 pd.*,
                 f.Fruit_Name
-             FROM Purchase_details pd
-             LEFT JOIN Fruits f
+             FROM purchase_details pd
+             LEFT JOIN fruits f
                 ON pd.Fruit_ID = f.Fruit_ID
              WHERE pd.Purchase_ID = ?`,
             [purchaseId]

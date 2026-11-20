@@ -13,7 +13,7 @@ const addSupplier = async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO Suppliers (Supplier_Name, Phone, Address)
+            INSERT INTO suppliers (Supplier_Name, Phone, Address)
             VALUES (?, ?, ?)
         `;
 
@@ -42,7 +42,7 @@ const addSupplier = async (req, res) => {
 const getAllSuppliers = async (req, res) => {
     try {
         const [suppliers] = await db.execute(
-            "SELECT * FROM Suppliers ORDER BY Supplier_ID DESC"
+            "SELECT * FROM suppliers ORDER BY Supplier_ID DESC"
         );
 
         res.status(200).json({
@@ -66,7 +66,7 @@ const getSupplierById = async (req, res) => {
         const { id } = req.params;
 
         const [suppliers] = await db.execute(
-            "SELECT * FROM Suppliers WHERE Supplier_ID = ?",
+            "SELECT * FROM suppliers WHERE Supplier_ID = ?",
             [id]
         );
 
@@ -101,7 +101,7 @@ const updateSupplier = async (req, res) => {
         }
 
         const sql = `
-            UPDATE Suppliers
+            UPDATE suppliers
             SET Supplier_Name = ?, Phone = ?, Address = ?
             WHERE Supplier_ID = ?
         `;
@@ -139,7 +139,7 @@ const deleteSupplier = async (req, res) => {
         const { id } = req.params;
 
         const [result] = await db.execute(
-            "DELETE FROM Suppliers WHERE Supplier_ID = ?",
+            "DELETE FROM suppliers WHERE Supplier_ID = ?",
             [id]
         );
 

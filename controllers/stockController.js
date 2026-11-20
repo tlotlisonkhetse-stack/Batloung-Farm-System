@@ -6,15 +6,15 @@ const getAllStock = async (req, res) => {
     try {
         const [stock] = await db.execute(`
             SELECT
-                Stock.Stock_ID,
-                Fruits.Fruit_Name,
-                Stock.Package_Size,
-                Stock.Quantity_Available,
-                Stock.Last_Updated
-            FROM Stock
-            JOIN Fruits
-            ON Stock.Fruit_ID = Fruits.Fruit_ID
-            ORDER BY Fruits.Fruit_Name, Stock.Package_Size
+                stock.Stock_ID,
+                fruits.Fruit_Name,
+                stock.Package_Size,
+                stock.Quantity_Available,
+                stock.Last_Updated
+            FROM stock
+            JOIN fruits
+            ON stock.Fruit_ID = fruits.Fruit_ID
+            ORDER BY fruits.Fruit_Name, stock.Package_Size
         `);
 
         res.status(200).json({
@@ -39,16 +39,16 @@ const getStockByFruit = async (req, res) => {
 
         const [stock] = await db.execute(`
             SELECT
-                Stock.Stock_ID,
-                Fruits.Fruit_Name,
-                Stock.Package_Size,
-                Stock.Quantity_Available,
-                Stock.Last_Updated
-            FROM Stock
-            JOIN Fruits
-            ON Stock.Fruit_ID = Fruits.Fruit_ID
-            WHERE Stock.Fruit_ID = ?
-            ORDER BY Stock.Package_Size
+                stock.Stock_ID,
+                fruits.Fruit_Name,
+                stock.Package_Size,
+                stock.Quantity_Available,
+                stock.Last_Updated
+            FROM stock
+            JOIN fruits
+            ON stock.Fruit_ID = fruits.Fruit_ID
+            WHERE stock.Fruit_ID = ?
+            ORDER BY stock.Package_Size
         `, [id]);
 
         res.status(200).json({
@@ -79,16 +79,16 @@ const getLowStock = async (req, res) => {
 
         const [stock] = await db.execute(`
             SELECT
-                Stock.Stock_ID,
-                Fruits.Fruit_Name,
-                Stock.Package_Size,
-                Stock.Quantity_Available,
-                Stock.Last_Updated
-            FROM Stock
-            JOIN Fruits
-            ON Stock.Fruit_ID = Fruits.Fruit_ID
-            WHERE Stock.Quantity_Available <= ?
-            ORDER BY Stock.Quantity_Available ASC
+                stock.Stock_ID,
+                fruits.Fruit_Name,
+                stock.Package_Size,
+                stock.Quantity_Available,
+                stock.Last_Updated
+            FROM stock
+            JOIN fruits
+            ON stock.Fruit_ID = fruits.Fruit_ID
+            WHERE stock.Quantity_Available <= ?
+            ORDER BY stock.Quantity_Available ASC
         `, [threshold]);
 
         res.status(200).json({

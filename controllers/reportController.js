@@ -8,7 +8,7 @@ const getSalesReport = async (req, res) => {
             SELECT
                 COUNT(*) AS Total_Sales,
                 COALESCE(SUM(Total_Amount), 0) AS Total_Revenue
-            FROM Sales
+            FROM sales
         `);
 
         res.status(200).json({
@@ -30,7 +30,7 @@ const getPurchaseReport = async (req, res) => {
             SELECT
                 COUNT(*) AS Total_Purchases,
                 COALESCE(SUM(Total_Amount), 0) AS Total_Purchase_Cost
-            FROM Purchases
+            FROM purchases
         `);
 
         res.status(200).json({
@@ -54,8 +54,8 @@ const getStockReport = async (req, res) => {
                 f.Fruit_Name,
                 s.Package_Size,
                 s.Quantity_Available
-            FROM Stock s
-            JOIN Fruits f ON s.Fruit_ID = f.Fruit_ID
+            FROM stock s
+            JOIN fruits f ON s.Fruit_ID = f.Fruit_ID
             ORDER BY f.Fruit_Name, s.Package_Size
         `);
 
@@ -76,12 +76,12 @@ const getProfitReport = async (req, res) => {
     try {
         const [sales] = await db.execute(`
             SELECT COALESCE(SUM(Total_Amount), 0) AS Total_Revenue
-            FROM Sales
+            FROM sales
         `);
 
         const [purchases] = await db.execute(`
             SELECT COALESCE(SUM(Total_Amount), 0) AS Total_Purchase_Cost
-            FROM Purchases
+            FROM purchases
         `);
 
         const revenue = Number(sales[0].Total_Revenue);
@@ -117,9 +117,9 @@ const getVendorDebtReport = async (req, res) => {
                 ) AS Outstanding_Balance,
                 s.Payment_Status,
                 s.Sale_Date
-            FROM Sales s
-            JOIN Vendors v ON s.Vendor_ID = v.Vendor_ID
-            LEFT JOIN Payments p ON s.Sale_ID = p.Sale_ID
+            FROM sales s
+            JOIN vendors v ON s.Vendor_ID = v.Vendor_ID
+            LEFT JOIN payments p ON s.Sale_ID = p.Sale_ID
             GROUP BY
                 s.Sale_ID,
                 v.Vendor_Name,

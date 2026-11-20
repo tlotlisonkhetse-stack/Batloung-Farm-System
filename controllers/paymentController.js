@@ -29,7 +29,7 @@ const addPayment = async (req, res) => {
         // Find the sale and lock it during payment processing
         const [sales] = await connection.execute(
             `SELECT Sale_ID, Total_Amount
-             FROM Sales
+             FROM sales
              WHERE Sale_ID = ?
              FOR UPDATE`,
             [Number(Sale_ID)]
@@ -48,7 +48,7 @@ const addPayment = async (req, res) => {
         // Calculate previous payments
         const [paymentRows] = await connection.execute(
             `SELECT COALESCE(SUM(Amount_Paid), 0) AS Total_Paid
-             FROM Payments
+             FROM payments
              WHERE Sale_ID = ?`,
             [Number(Sale_ID)]
         );
@@ -70,7 +70,7 @@ const addPayment = async (req, res) => {
 
         // Save payment
         const [result] = await connection.execute(
-            `INSERT INTO Payments
+            `INSERT INTO payments
              (Sale_ID, Amount_Paid, Payment_Method)
              VALUES (?, ?, ?)`,
             [Number(Sale_ID), amountPaid, Payment_Method]
@@ -87,7 +87,7 @@ const addPayment = async (req, res) => {
 
         // Update sale payment status
         await connection.execute(
-            `UPDATE Sales
+            `UPDATE sales
              SET Payment_Status = ?
              WHERE Sale_ID = ?`,
             [paymentStatus, Number(Sale_ID)]
@@ -128,18 +128,18 @@ const getAllPayments = async (req, res) => {
     try {
         const [payments] = await db.execute(`
             SELECT
-                Payments.Payment_ID,
-                Payments.Sale_ID,
-                Vendors.Vendor_Name,
-                Payments.Amount_Paid,
-                Payments.Payment_Method,
-                Payments.Payment_Date
-            FROM Payments
-            JOIN Sales
-                ON Payments.Sale_ID = Sales.Sale_ID
-            JOIN Vendors
-                ON Sales.Vendor_ID = Vendors.Vendor_ID
-            ORDER BY Payments.Payment_Date DESC
+                payments.Payment_ID,
+                payments.Sale_ID,
+                vendors.Vendor_Name,
+                payments.Amount_Paid,
+                payments.Payment_Method,
+                payments.Payment_Date
+            FROM payments
+            JOIN sales
+                ON payments.Sale_ID = sales.Sale_ID
+            JOIN vendors
+                ON sales.Vendor_ID = vendors.Vendor_ID
+            ORDER BY payments.Payment_Date DESC
         `);
 
         res.status(200).json({
@@ -165,7 +165,7 @@ const getPaymentsBySale = async (req, res) => {
 
         const [payments] = await db.execute(`
             SELECT *
-            FROM Payments
+            FROM payments
             WHERE Sale_ID = ?
             ORDER BY Payment_Date DESC
         `, [id]);
@@ -191,28 +191,28 @@ const getOutstandingBalances = async (req, res) => {
     try {
         const [balances] = await db.execute(`
             SELECT
-                Sales.Sale_ID,
-                Vendors.Vendor_Name,
-                Sales.Sale_Date,
-                Sales.Total_Amount,
-                COALESCE(SUM(Payments.Amount_Paid), 0) AS Total_Paid,
-                Sales.Total_Amount -
-                    COALESCE(SUM(Payments.Amount_Paid), 0)
+                sales.Sale_ID,
+                vendors.Vendor_Name,
+                sales.Sale_Date,
+                sales.Total_Amount,
+                COALESCE(SUM(payments.Amount_Paid), 0) AS Total_Paid,
+                sales.Total_Amount -
+                    COALESCE(SUM(payments.Amount_Paid), 0)
                     AS Outstanding_Balance,
-                Sales.Payment_Status
-            FROM Sales
-            JOIN Vendors
-                ON Sales.Vendor_ID = Vendors.Vendor_ID
-            LEFT JOIN Payments
-                ON Sales.Sale_ID = Payments.Sale_ID
+                sales.Payment_Status
+            FROM sales
+            JOIN vendors
+                ON sales.Vendor_ID = vendors.Vendor_ID
+            LEFT JOIN payments
+                ON sales.Sale_ID = payments.Sale_ID
             GROUP BY
-                Sales.Sale_ID,
-                Vendors.Vendor_Name,
-                Sales.Sale_Date,
-                Sales.Total_Amount,
-                Sales.Payment_Status
+                sales.Sale_ID,
+                vendors.Vendor_Name,
+                sales.Sale_Date,
+                sales.Total_Amount,
+                sales.Payment_Status
             HAVING Outstanding_Balance > 0
-            ORDER BY Sales.Sale_Date DESC
+            ORDER BY sales.Sale_Date DESC
         `);
 
         res.status(200).json({

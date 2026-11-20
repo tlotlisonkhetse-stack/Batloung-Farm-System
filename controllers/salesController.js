@@ -65,7 +65,7 @@ const addSale = async (req, res) => {
 
         // Check whether vendor exists
         const [vendors] = await connection.execute(
-            "SELECT Vendor_ID FROM Vendors WHERE Vendor_ID = ?",
+            "SELECT Vendor_ID FROM vendors WHERE Vendor_ID = ?",
             [Vendor_ID]
         );
 
@@ -86,7 +86,7 @@ const addSale = async (req, res) => {
             // Get the active selling price
             const [prices] = await connection.execute(
                 `SELECT Selling_Price
-                 FROM Packaging_Prices
+                 FROM packaging_prices
                  WHERE Fruit_ID = ?
                  AND Package_Size = ?
                  AND Is_Active = TRUE
@@ -105,7 +105,7 @@ const addSale = async (req, res) => {
             // Check and lock available stock
             const [stocks] = await connection.execute(
                 `SELECT Quantity_Available
-                 FROM Stock
+                 FROM stock
                  WHERE Fruit_ID = ?
                  AND Package_Size = ?
                  FOR UPDATE`,
@@ -137,7 +137,7 @@ const addSale = async (req, res) => {
 
         // Create sale record
         const [saleResult] = await connection.execute(
-            `INSERT INTO Sales
+            `INSERT INTO sales
             (Vendor_ID, Sale_Date, Total_Amount, Payment_Method, Payment_Status)
             VALUES (?, ?, ?, ?, ?)`,
             [
@@ -155,7 +155,7 @@ const addSale = async (req, res) => {
         for (const item of saleItems) {
 
             await connection.execute(
-                `INSERT INTO Sales_details
+                `INSERT INTO sales_details
                 (Sale_ID, Fruit_ID, Package_Size, Quantity, Unit_Price, Subtotal)
                 VALUES (?, ?, ?, ?, ?, ?)`,
                 [
@@ -169,7 +169,7 @@ const addSale = async (req, res) => {
             );
 
             await connection.execute(
-                `UPDATE Stock
+                `UPDATE stock
                  SET Quantity_Available = Quantity_Available - ?
                  WHERE Fruit_ID = ?
                  AND Package_Size = ?`,
@@ -212,12 +212,12 @@ const getAllSales = async (req, res) => {
     try {
         const [sales] = await db.execute(`
             SELECT
-                Sales.*,
-                Vendors.Vendor_Name
-            FROM Sales
-            JOIN Vendors
-            ON Sales.Vendor_ID = Vendors.Vendor_ID
-            ORDER BY Sales.Sale_ID DESC
+                sales.*,
+                vendors.Vendor_Name
+            FROM sales
+            JOIN vendors
+            ON sales.Vendor_ID = vendors.Vendor_ID
+            ORDER BY sales.Sale_ID DESC
         `);
 
         res.status(200).json({
@@ -242,12 +242,12 @@ const getSaleById = async (req, res) => {
 
         const [sales] = await db.execute(`
             SELECT
-                Sales.*,
-                Vendors.Vendor_Name
-            FROM Sales
-            JOIN Vendors
-            ON Sales.Vendor_ID = Vendors.Vendor_ID
-            WHERE Sales.Sale_ID = ?
+                sales.*,
+                vendors.Vendor_Name
+            FROM sales
+            JOIN vendors
+            ON sales.Vendor_ID = vendors.Vendor_ID
+            WHERE sales.Sale_ID = ?
         `, [id]);
 
         if (sales.length === 0) {
@@ -258,12 +258,12 @@ const getSaleById = async (req, res) => {
 
         const [items] = await db.execute(`
             SELECT
-                Sales_details.*,
-                Fruits.Fruit_Name
-            FROM Sales_details
-            JOIN Fruits
-            ON Sales_details.Fruit_ID = Fruits.Fruit_ID
-            WHERE Sales_details.Sale_ID = ?
+                sales_details.*,
+                fruits.Fruit_Name
+            FROM sales_details
+            JOIN fruits
+            ON sales_details.Fruit_ID = fruits.Fruit_ID
+            WHERE sales_details.Sale_ID = ?
         `, [id]);
 
         res.status(200).json({
